@@ -11,6 +11,7 @@ import { branchCommand } from "./commands/branch";
 import { statusCommand } from "./commands/status";
 import { diffCommand } from "./commands/diff";
 import { configCommand } from "./commands/config";
+import { remoteCommand } from "./commands/remote";
 import { Config } from "./core";
 
 const repoPath = path.resolve(process.cwd());
@@ -186,5 +187,31 @@ program
       process.exit(1);
     }
   });
+
+program
+  .command("remote")
+  .description("Manage set of tracked repositories")
+  .argument("[action]", "remote action (add, remove, set-url, show)")
+  .argument("[name]", "remote name")
+  .argument("[url]", "remote url")
+  .option("-v, --verbose", "show remote URLs")
+  .action(
+    async (action?: string, name?: string, url?: string, options?: any) => {
+      try {
+        const args: string[] = [];
+
+        if (action) args.push(action);
+        if (name) args.push(name);
+        if (url) args.push(url);
+
+        await remoteCommand(args, {
+          verbose: options?.verbose,
+        });
+      } catch (error: any) {
+        console.error("Error:", error.message);
+        process.exit(1);
+      }
+    },
+  );
 
 program.parse(process.argv);

@@ -1,20 +1,20 @@
-Yes 👍 — **the remote URL is handled with a different Git command**, not directly with `git config` (although internally Git stores it in config).
+Yes 👍 — **the remote URL is handled with a different loonyGit command**, not directly with `loonygit config` (although internally loonyGit stores it in config).
 
-The command used is **`git remote`**.
+The command used is **`loonygit remote`**.
 
 ---
 
 # 1. Check Remote URL
 
 ```bash
-git remote -v
+loonygit remote -v
 ```
 
 Example output:
 
 ```text
-origin  https://github.com/user/repo.git (fetch)
-origin  https://github.com/user/repo.git (push)
+origin  https://github.com/user/repo.loonygit (fetch)
+origin  https://github.com/user/repo.loonygit (push)
 ```
 
 ---
@@ -22,14 +22,14 @@ origin  https://github.com/user/repo.git (push)
 # 2. Add Remote URL
 
 ```bash
-git remote add origin https://github.com/user/repo.git
+loonygit remote add origin https://github.com/user/repo.git
 ```
 
 Example workflow:
 
 ```bash
-git init
-git remote add origin https://github.com/user/project.git
+loonygit init
+loonygit remote add origin https://github.com/user/project.git
 ```
 
 ---
@@ -37,13 +37,13 @@ git remote add origin https://github.com/user/project.git
 # 3. Change Remote URL
 
 ```bash
-git remote set-url origin https://github.com/user/newrepo.git
+loonygit remote set-url origin https://github.com/user/newrepo.git
 ```
 
 Example:
 
 ```bash
-git remote set-url origin git@github.com:user/project.git
+loonygit remote set-url origin git@github.com:user/project.git
 ```
 
 ---
@@ -51,7 +51,7 @@ git remote set-url origin git@github.com:user/project.git
 # 4. Remove Remote
 
 ```bash
-git remote remove origin
+loonygit remote remove origin
 ```
 
 ---
@@ -59,7 +59,7 @@ git remote remove origin
 # 5. Rename Remote
 
 ```bash
-git remote rename origin upstream
+loonygit remote rename origin upstream
 ```
 
 ---
@@ -67,7 +67,7 @@ git remote rename origin upstream
 # 6. Show Detailed Remote Info
 
 ```bash
-git remote show origin
+loonygit remote show origin
 ```
 
 This shows:
@@ -81,7 +81,7 @@ This shows:
 # 7. List All Remotes
 
 ```bash
-git remote
+loonygit remote
 ```
 
 Example output:
@@ -93,9 +93,9 @@ upstream
 
 ---
 
-# 8. Where Git Actually Stores It
+# 8. Where loonyGit Actually Stores It
 
-Git saves the remote URL inside the **repo config file**:
+loonyGit saves the remote URL inside the **repo config file**:
 
 ```
 .git/config
@@ -109,30 +109,36 @@ Example inside that file:
     fetch = +refs/heads/*:refs/remotes/origin/*
 ```
 
-So technically you **could also set it using `git config`**:
+So technically you **could also set it using `loonygit config`**:
 
 ```bash
-git config remote.origin.url https://github.com/user/repo.git
+loonygit config remote.origin.url https://github.com/user/repo.git
 ```
 
 But the **recommended command is**:
 
 ```bash
-git remote set-url
+loonygit remote set-url
 ```
 
 ---
 
 ✅ **Summary**
 
-| Task          | Command                         |
-| ------------- | ------------------------------- |
-| Add remote    | `git remote add origin URL`     |
-| View remote   | `git remote -v`                 |
-| Change URL    | `git remote set-url origin URL` |
-| Remove remote | `git remote remove origin`      |
-| Show details  | `git remote show origin`        |
+| Task          | Command                              |
+| ------------- | ------------------------------------ |
+| Add remote    | `loonygit remote add origin URL`     |
+| View remote   | `loonygit remote -v`                 |
+| Change URL    | `loonygit remote set-url origin URL` |
+| Remove remote | `loonygit remote remove origin`      |
+| Show details  | `loonygit remote show origin`        |
 
 ---
 
-💡 If you'd like, I can also show **the full Git remote workflow (clone → add → push → upstream)** that most developers use daily.
+```sh
+loonygit remote add origin URL
+loonygit remote -v
+loonygit remote set-url origin URL
+loonygit remote remove origin
+loonygit remote show origin
+```

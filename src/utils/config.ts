@@ -67,32 +67,70 @@ export const parseValue = (value: string): any => {
   return value;
 };
 
+// export const serializeConfig = (config: ConfigValues): string => {
+//   const lines: string[] = [];
+
+//   for (const [section, values] of Object.entries(config)) {
+//     if (typeof values === "object") {
+//       lines.push(`[${section}]`);
+
+//       for (const [key, value] of Object.entries(values)) {
+//         if (typeof value === "object") {
+//           // Handle subsections
+//           for (const [subKey, subValue] of Object.entries(
+//             value as Record<string, any>,
+//           )) {
+//             const formattedValue = formatValue(subValue);
+//             lines.push(`  ${subKey} = ${formattedValue}`);
+//           }
+//         } else {
+//           const formattedValue = formatValue(value);
+//           lines.push(`  ${key} = ${formattedValue}`);
+//         }
+//       }
+//       lines.push("");
+//     }
+//   }
+
+//   return lines.join("\n");
+// };
+
 export const serializeConfig = (config: ConfigValues): string => {
   const lines: string[] = [];
 
   for (const [section, values] of Object.entries(config)) {
-    if (typeof values === "object") {
-      lines.push(`[${section}]`);
+    const entries = Object.entries(values);
 
-      for (const [key, value] of Object.entries(values)) {
-        if (typeof value === "object") {
-          // Handle subsections
-          for (const [subKey, subValue] of Object.entries(
-            value as Record<string, any>,
-          )) {
-            const formattedValue = formatValue(subValue);
-            lines.push(`  ${subKey} = ${formattedValue}`);
-          }
-        } else {
+    const hasSubsections = entries.some(
+      ([, v]) => typeof v === "object" && v !== null,
+    );
+
+    if (hasSubsections) {
+      for (const [subsection, subValues] of entries) {
+        if (typeof subValues !== "object" || subValues === null) continue;
+
+        lines.push(`[${section} "${subsection}"]`);
+
+        for (const [key, value] of Object.entries(subValues)) {
           const formattedValue = formatValue(value);
           lines.push(`  ${key} = ${formattedValue}`);
         }
+
+        lines.push("");
       }
+    } else {
+      lines.push(`[${section}]`);
+
+      for (const [key, value] of entries) {
+        const formattedValue = formatValue(value);
+        lines.push(`  ${key} = ${formattedValue}`);
+      }
+
       lines.push("");
     }
   }
 
-  return lines.join("\n");
+  return lines.join("\n").trim();
 };
 
 const formatValue = (value: any): string => {

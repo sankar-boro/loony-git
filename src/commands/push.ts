@@ -50,41 +50,30 @@ export async function pushCommand(
     process.exit(1);
   }
 
-  console.log({
-    remote,
-    remoteUrl,
-    localCommit,
-    refPath,
-  });
-  console.log(objectStore);
   console.log(`Pushing ${branch} to ${remoteName} (${remoteUrl})`);
 
   const objects = await collectObjects(objectStore, localCommit);
-  console.log({
+
+  const payload = {
+    branch,
+    head: localCommit,
     objects,
+  };
+
+  const response = await fetch(`${remoteUrl}/push`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
   });
-  //   const payload = {
-  //     branch,
-  //     head: localCommit,
-  //     objects,
-  //   };
 
-  //   console.log(payload);
+  if (!response.ok) {
+    console.error(`Push failed: ${response.statusText}`);
+    process.exit(1);
+  }
 
-  //   const response = await fetch(`${remoteUrl}/push`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(payload),
-  //   });
-
-  //   if (!response.ok) {
-  //     console.error(`Push failed: ${response.statusText}`);
-  //     process.exit(1);
-  //   }
-
-  //   console.log(`Push successful.`);
+  console.log(`Push successful.`);
 }
 
 async function collectObjects(objectStore: ObjectStore, commitHash: string) {
@@ -100,7 +89,6 @@ async function collectObjects(objectStore: ObjectStore, commitHash: string) {
 
     if (obj.type === "commit") {
       const content = obj.content.toString();
-
       const treeMatch = content.match(/^tree ([a-f0-9]+)/m);
       if (treeMatch) {
         await walk(treeMatch[1]);
@@ -113,13 +101,11 @@ async function collectObjects(objectStore: ObjectStore, commitHash: string) {
     }
 
     if (obj.type === "tree") {
-      const entries = obj.content.toString().split("\n");
+      const entries = parseTree(obj.content);
 
       for (const entry of entries) {
-        const parts = entry.split(" ");
-        const hash = parts[2];
-        if (hash) {
-          await walk(hash);
+        if (entry.hash) {
+          await walk(entry.hash);
         }
       }
     }
@@ -128,4 +114,47 @@ async function collectObjects(objectStore: ObjectStore, commitHash: string) {
   await walk(commitHash);
 
   return objects;
+}
+
+export type TreeEntry = {
+  mode: string;
+  name: string;
+  hash: string;
+};
+
+export function parseTree(buffer: Buffer): TreeEntry[] {
+  const entries: TreeEntry[] = [];
+  let i = 0;
+
+  while (i < buffer.length) {
+    // read mode
+    let mode = "";
+    while (buffer[i] !== 0x20) {
+      // space
+      mode += String.fromCharCode(buffer[i]);
+      i++;
+    }
+    i++; // skip space
+
+    // read filename
+    let name = "";
+    while (buffer[i] !== 0x00) {
+      name += String.fromCharCode(buffer[i]);
+      i++;
+    }
+    i++; // skip null byte
+
+    // read 20 byte hash
+    const hashBuffer = buffer.slice(i, i + 20);
+    const hash = hashBuffer.toString("hex");
+    i += 20;
+
+    entries.push({
+      mode,
+      name,
+      hash,
+    });
+  }
+
+  return entries;
 }

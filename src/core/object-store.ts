@@ -60,6 +60,26 @@ export class ObjectStore {
       content: decompressed.slice(nullIndex + 1),
     };
   }
+
+  async readObject(hash: Hash): Promise<{ type: string; content: Buffer }> {
+    const objectPath = path.join(
+      this.objectsPath,
+      hash.slice(0, 2),
+      hash.slice(2),
+    );
+    const compressed = await fs.readFile(objectPath);
+    const decompressed = await inflateAsync(compressed);
+
+    // Find the null byte separator
+    const nullIndex = decompressed.indexOf(0);
+    const header = decompressed.slice(0, nullIndex).toString("utf-8");
+    const [type] = header.split(" ");
+
+    return {
+      type,
+      content: decompressed.slice(nullIndex + 1),
+    };
+  }
 }
 
 class MockObjectStore {

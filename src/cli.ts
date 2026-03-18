@@ -12,6 +12,7 @@ import { statusCommand } from "./commands/status";
 import { diffCommand } from "./commands/diff";
 import { configCommand } from "./commands/config";
 import { remoteCommand } from "./commands/remote";
+import { pushCommand } from "./commands/push";
 import { Config } from "./core";
 
 const repoPath = path.resolve(process.cwd());
@@ -213,5 +214,21 @@ program
       }
     },
   );
+
+program
+  .command("push")
+  .description("Push commits to a remote repository")
+  .argument("[remote]", "remote name (default: origin)")
+  .argument("[branch]", "branch name (default: current branch)")
+  .action(async (remote?: string, branch?: string) => {
+    try {
+      const repoPath = process.cwd();
+
+      await pushCommand(repoPath, remote ?? "origin", branch ?? "main");
+    } catch (error: any) {
+      console.error("Error:", error.message);
+      process.exit(1);
+    }
+  });
 
 program.parse(process.argv);

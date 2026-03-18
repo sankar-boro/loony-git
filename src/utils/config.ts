@@ -1,5 +1,10 @@
 import { ConfigValues } from "../core/config";
 
+export type RemoteMap = Record<
+  string,
+  { url?: string; fetch?: string | string[] }
+>;
+
 export const parseConfig = (content: string): ConfigValues => {
   const config: ConfigValues = {};
   const lines = content.split("\n");
@@ -143,3 +148,25 @@ const formatValue = (value: any): string => {
   }
   return String(value);
 };
+
+export function getRemotes(config: any): RemoteMap {
+  const all = config.listAll();
+
+  if (!all.remote) {
+    return {};
+  }
+
+  return all.remote as RemoteMap;
+}
+
+export function ensureRemoteExists(remotes: RemoteMap, name: string) {
+  if (!remotes[name]) {
+    throw new Error(`Remote '${name}' does not exist`);
+  }
+}
+
+export function ensureRemoteMissing(remotes: RemoteMap, name: string) {
+  if (remotes[name]) {
+    throw new Error(`Remote '${name}' already exists`);
+  }
+}

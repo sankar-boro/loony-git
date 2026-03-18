@@ -1,28 +1,5 @@
 import { Config } from "../core/config";
-
-type RemoteMap = Record<string, { url?: string; fetch?: string | string[] }>;
-
-function getRemotes(config: Config): RemoteMap {
-  const all = config.listAll();
-
-  if (!all.remote) {
-    return {};
-  }
-
-  return all.remote as RemoteMap;
-}
-
-function ensureRemoteExists(remotes: RemoteMap, name: string) {
-  if (!remotes[name]) {
-    throw new Error(`Remote '${name}' does not exist`);
-  }
-}
-
-function ensureRemoteMissing(remotes: RemoteMap, name: string) {
-  if (remotes[name]) {
-    throw new Error(`Remote '${name}' already exists`);
-  }
-}
+import { getRemotes, ensureRemoteExists } from "../utils/config";
 
 export async function remoteCommand(
   args: string[],

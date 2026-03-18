@@ -53,14 +53,13 @@ export async function pushCommand(
   console.log(`Pushing ${branch} to ${remoteName} (${remoteUrl})`);
 
   const objects = await collectObjects(objectStore, localCommit);
-
   const payload = {
     branch,
     head: localCommit,
     objects,
   };
 
-  const response = await fetch(`${remoteUrl}/push`, {
+  const response = await fetch(`http://localhost:2000/repos/hello/push`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -78,14 +77,17 @@ export async function pushCommand(
 
 async function collectObjects(objectStore: ObjectStore, commitHash: string) {
   const visited = new Set<string>();
-  const objects: Record<string, string> = {};
+  const objects: Record<string, { type: string; content: any }> = {};
 
   async function walk(hash: string) {
     if (visited.has(hash)) return;
     visited.add(hash);
 
     const obj = await objectStore.readObject(hash);
-    objects[hash] = obj.content.toString("base64");
+    objects[hash] = {
+      content: obj.content.toString("base64"),
+      type: obj.type,
+    };
 
     if (obj.type === "commit") {
       const content = obj.content.toString();

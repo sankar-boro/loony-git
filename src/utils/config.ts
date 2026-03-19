@@ -72,34 +72,6 @@ export const parseValue = (value: string): any => {
   return value;
 };
 
-// export const serializeConfig = (config: ConfigValues): string => {
-//   const lines: string[] = [];
-
-//   for (const [section, values] of Object.entries(config)) {
-//     if (typeof values === "object") {
-//       lines.push(`[${section}]`);
-
-//       for (const [key, value] of Object.entries(values)) {
-//         if (typeof value === "object") {
-//           // Handle subsections
-//           for (const [subKey, subValue] of Object.entries(
-//             value as Record<string, any>,
-//           )) {
-//             const formattedValue = formatValue(subValue);
-//             lines.push(`  ${subKey} = ${formattedValue}`);
-//           }
-//         } else {
-//           const formattedValue = formatValue(value);
-//           lines.push(`  ${key} = ${formattedValue}`);
-//         }
-//       }
-//       lines.push("");
-//     }
-//   }
-
-//   return lines.join("\n");
-// };
-
 export const serializeConfig = (config: ConfigValues): string => {
   const lines: string[] = [];
 

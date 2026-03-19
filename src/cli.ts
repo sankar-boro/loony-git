@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require("dotenv").config();
+
 import { program } from "commander";
 import * as path from "path";
 import { initCommand } from "./commands/init";

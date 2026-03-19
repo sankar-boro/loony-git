@@ -1,3 +1,4 @@
+import fsPromises from "fs/promises";
 import * as path from "path";
 import * as os from "os";
 import {
@@ -20,6 +21,19 @@ const localConfigPath = path.join(loonygitPath, LOCAL_CONFIG_NAME);
 const loonyignorePath = path.join(repoPath, APP_IGNORE_NAME);
 const indexPath = path.join(loonygitPath, "index");
 const branchesPath = path.join(loonygitPath, "refs", "heads");
+const getHeadRef = async () =>
+  (await fsPromises.readFile(headPath, "utf-8")).trim();
+const getRefPath = async () => {
+  let headRef = await getHeadRef();
+  return path.join(repoPath, ".loonygit", headRef.slice(5));
+};
+const getLocalCommit = async () => {
+  const headRef = (await fsPromises.readFile(headPath, "utf-8")).trim();
+  const refPath = path.join(repoPath, ".loonygit", headRef.slice(5));
+  return (await fsPromises.readFile(refPath, "utf-8")).trim();
+};
+
+const getCurrentHash = getLocalCommit;
 
 export {
   repoPath,
@@ -35,4 +49,8 @@ export {
   localConfigPath,
   globalConfigPath,
   loonyignorePath,
+  getHeadRef,
+  getRefPath,
+  getLocalCommit,
+  getCurrentHash,
 };

@@ -1,7 +1,7 @@
 import { ObjectStore, CommitManager } from "../core";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { headPath } from "../paths";
+import { getCurrentHash, getHeadRef, getRefPath, headPath } from "../paths";
 
 const green = (s: string) => `\x1b[32m${s}\x1b[0m`;
 const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
@@ -12,13 +12,12 @@ export async function logCommand(repoPath: string): Promise<void> {
   const objectStore = new ObjectStore();
   const commitManager = new CommitManager(objectStore);
 
-  const headRef = (await fs.readFile(headPath, "utf-8")).trim();
+  const headRef = await getHeadRef();
 
   let currentHash: string | null = null;
   if (headRef.startsWith("ref: ")) {
-    const refPath = path.join(repoPath, ".loonygit", headRef.slice(5));
     try {
-      currentHash = (await fs.readFile(refPath, "utf-8")).trim();
+      currentHash = await getCurrentHash();
     } catch {
       console.log("No commits yet");
       return;

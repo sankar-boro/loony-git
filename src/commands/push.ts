@@ -4,8 +4,10 @@ import fetch from "node-fetch";
 
 import { ObjectStore } from "../core";
 import { Config } from "../core/config";
-import { TreeEntry } from "../core/types";
-import { headPath } from "../paths";
+import { getHeadRef, getRefPath, getLocalCommit } from "../paths";
+import { getRepoName, collectObjects } from "../utils/index";
+
+const API_URL = process.env.API_URL;
 
 export async function pushCommand(
   repoPath: string,
@@ -18,49 +20,24 @@ export async function pushCommand(
   await config.loadAll();
 
   const allConfig = await config.listAll();
-
-  if (!allConfig) {
-    console.error(`Remote '${remoteName}' not found`);
-    process.exit(1);
-  }
-
-  let remoteUrl = null;
-  if (allConfig.remote) {
-    if (allConfig.remote[remoteName]) {
-      if (allConfig.remote[remoteName].url) {
-        remoteUrl = allConfig.remote[remoteName].url;
-      }
-    }
-  }
-
-  const headRef = (await fs.readFile(headPath, "utf-8")).trim();
-
-  if (!headRef.startsWith("ref: ")) {
-    console.error("Detached HEAD state. Cannot push.");
-    process.exit(1);
-  }
-
-  const refPath = path.join(repoPath, ".loonygit", headRef.slice(5));
-
-  let localCommit: string;
-
-  try {
-    localCommit = (await fs.readFile(refPath, "utf-8")).trim();
-  } catch {
-    console.error("No commits to push.");
-    process.exit(1);
-  }
+  const remoteUrl = config.get("remote.origin.url");
+  const localCommit = await getLocalCommit();
 
   console.log(`Pushing ${branch} to ${remoteName} (${remoteUrl})`);
 
   const objects = await collectObjects(objectStore, localCommit);
+  const email = allConfig.user?.email;
+  const repoName = getRepoName(remoteUrl as string);
+
   const payload = {
     branch,
     head: localCommit,
     objects,
+    email,
+    repo: repoName,
   };
 
-  const response = await fetch(`http://localhost:2000/repos/hello/push`, {
+  const response = await fetch(API_URL + "/" + repoName + "/" + "push", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -74,84 +51,4 @@ export async function pushCommand(
   }
 
   console.log(`Push successful.`);
-}
-
-async function collectObjects(objectStore: ObjectStore, commitHash: string) {
-  const visited = new Set<string>();
-  const objects: Record<string, { type: string; content: any }> = {};
-
-  async function walk(hash: string) {
-    if (visited.has(hash)) return;
-    visited.add(hash);
-
-    const obj = await objectStore.readObject(hash);
-    objects[hash] = {
-      content: obj.content.toString("base64"),
-      type: obj.type,
-    };
-
-    if (obj.type === "commit") {
-      const content = obj.content.toString();
-      const treeMatch = content.match(/^tree ([a-f0-9]+)/m);
-      if (treeMatch) {
-        await walk(treeMatch[1]);
-      }
-
-      const parentMatches = [...content.matchAll(/^parent ([a-f0-9]+)/gm)];
-      for (const p of parentMatches) {
-        await walk(p[1]);
-      }
-    }
-
-    if (obj.type === "tree") {
-      const entries = parseTree(obj.content);
-
-      for (const entry of entries) {
-        if (entry.hash) {
-          await walk(entry.hash);
-        }
-      }
-    }
-  }
-
-  await walk(commitHash);
-
-  return objects;
-}
-
-export function parseTree(buffer: Buffer): TreeEntry[] {
-  const entries: TreeEntry[] = [];
-  let i = 0;
-
-  while (i < buffer.length) {
-    // read mode
-    let mode: any = "";
-    while (buffer[i] !== 0x20) {
-      // space
-      mode += String.fromCharCode(buffer[i]);
-      i++;
-    }
-    i++; // skip space
-
-    // read filename
-    let name = "";
-    while (buffer[i] !== 0x00) {
-      name += String.fromCharCode(buffer[i]);
-      i++;
-    }
-    i++; // skip null byte
-
-    // read 20 byte hash
-    const hashBuffer = buffer.slice(i, i + 20);
-    const hash = hashBuffer.toString("hex");
-    i += 20;
-
-    entries.push({
-      mode,
-      name,
-      hash,
-    });
-  }
-
-  return entries;
 }

@@ -6,3 +6,4 @@ lib/
 .loonygit/
 .vc/
 git/
+.env

@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 
 import { ObjectStore } from "../core";
 import { Config } from "../core/config";
+import { TreeEntry } from "../core/types";
 import { headPath } from "../paths";
 
 export async function pushCommand(
@@ -16,18 +17,18 @@ export async function pushCommand(
 
   await config.loadAll();
 
-  const remote = await config.listAll();
+  const allConfig = await config.listAll();
 
-  if (!remote) {
+  if (!allConfig) {
     console.error(`Remote '${remoteName}' not found`);
     process.exit(1);
   }
 
   let remoteUrl = null;
-  if (remote.remote) {
-    if (remote.remote[remoteName]) {
-      if (remote.remote[remoteName].url) {
-        remoteUrl = remote.remote[remoteName].url;
+  if (allConfig.remote) {
+    if (allConfig.remote[remoteName]) {
+      if (allConfig.remote[remoteName].url) {
+        remoteUrl = allConfig.remote[remoteName].url;
       }
     }
   }
@@ -118,19 +119,13 @@ async function collectObjects(objectStore: ObjectStore, commitHash: string) {
   return objects;
 }
 
-export type TreeEntry = {
-  mode: string;
-  name: string;
-  hash: string;
-};
-
 export function parseTree(buffer: Buffer): TreeEntry[] {
   const entries: TreeEntry[] = [];
   let i = 0;
 
   while (i < buffer.length) {
     // read mode
-    let mode = "";
+    let mode: any = "";
     while (buffer[i] !== 0x20) {
       // space
       mode += String.fromCharCode(buffer[i]);

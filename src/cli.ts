@@ -26,9 +26,9 @@ program
   .command("init")
   .description("Initialize a new repository")
   .argument("[path]", "directory to initialize", ".")
-  .action(async (files: string) => {
+  .action(async (initPath: string) => {
     try {
-      await initCommand(files);
+      await initCommand(initPath);
     } catch (error: any) {
       console.error("Error:", error.message);
       process.exit(1);

@@ -225,7 +225,7 @@ const config = {
   },
 };
 async function main() {
-  const data = await fs.readFile("./.loonygit/.loonyconfig", "utf8");
+  const data = await fs.readFile("./.loonygit/config", "utf8");
   const res = parseConfig(data);
   console.log(res);
 

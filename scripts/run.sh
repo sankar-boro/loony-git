@@ -11,3 +11,5 @@ loonygit config user.email "sankar.boro@yahoo.com"
 
 loonygit add .
 loonygit commit -m "Init loonygit"
+
+loonygit remote set-url origin http://localhost:2000/sankar-boro/hello.git

@@ -46,27 +46,6 @@ function getRootHashFromArgs() {
   return rootHash;
 }
 
-async function walkTree(treeManager, treeHash, prefix = "", depth = 0) {
-  log.info(`Reading tree: ${treeHash}`);
-
-  const tree = await treeManager.readTree(treeHash);
-
-  if (tree.type !== "tree") {
-    throw new Error(`Expected tree, got ${tree.type} (${treeHash})`);
-  }
-
-  for (const entry of tree.entries) {
-    const fullPath = prefix ? `${prefix}/${entry.name}` : entry.name;
-
-    if (entry.mode === "040000") {
-      log.tree(depth, fullPath);
-      await walkTree(treeManager, entry.hash, fullPath, depth + 1);
-    } else {
-      log.file(depth, fullPath);
-    }
-  }
-}
-
 async function run() {
   try {
     log.section("Bootstrapping");

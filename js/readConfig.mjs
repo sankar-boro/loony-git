@@ -1,6 +1,15 @@
 // const fs = require("fs");
 import fs from "fs/promises";
 
+const config = {
+  user: { name: "Sankar Boro", email: "sankar.boro@yahoo.com" },
+  remote: {
+    origin: {
+      url: "https://loonygit.com/sankar-boro/hello.git",
+    },
+  },
+};
+
 const parseValue = (value) => {
   // Try to parse as number
   if (/^\d+$/.test(value)) return parseInt(value, 10);
@@ -13,6 +22,21 @@ const parseValue = (value) => {
   // Default to string
   return value;
 };
+
+const formatValue = (value) => {
+  if (typeof value === "string") {
+    // Quote if contains spaces
+    return value.includes(" ") ? `"${value}"` : value;
+  }
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+  return String(value);
+};
+
+function ensureArray(v) {
+  return Array.isArray(v) ? v : [v];
+}
 
 const parseConfig = (content) => {
   const config = {};
@@ -68,7 +92,7 @@ const parseConfig = (content) => {
   return config;
 };
 
-export const serializeConfig = (config) => {
+const serializeConfig = (config) => {
   const lines = [];
 
   for (const [section, values] of Object.entries(config)) {
@@ -104,7 +128,7 @@ export const serializeConfig = (config) => {
   return lines.join("\n").trim();
 };
 
-export function serializeConfig1(config) {
+const serializeConfig1 = (config) => {
   const lines = [];
 
   for (const [section, values] of Object.entries(config)) {
@@ -140,9 +164,9 @@ export function serializeConfig1(config) {
   }
 
   return lines.join("\n").trim() + "\n";
-}
+};
 
-export function parseConfig1(content) {
+const parseConfig1 = (content) => {
   const config = {};
 
   const lines = content.split(/\r?\n/);
@@ -199,41 +223,37 @@ export function parseConfig1(content) {
   }
 
   return config;
-}
-
-const formatValue = (value) => {
-  if (typeof value === "string") {
-    // Quote if contains spaces
-    return value.includes(" ") ? `"${value}"` : value;
-  }
-  if (typeof value === "boolean") {
-    return value ? "true" : "false";
-  }
-  return String(value);
 };
 
-function ensureArray(v) {
-  return Array.isArray(v) ? v : [v];
-}
-
-const config = {
-  user: { name: "Sankar Boro", email: "sankar.boro@yahoo.com" },
-  remote: {
-    origin: {
-      url: "https://loonygit.com/sankar-boro/hello.git",
-    },
-  },
-};
-async function main() {
+async function testParseConfig() {
   const data = await fs.readFile("./.loonygit/config", "utf8");
   const res = parseConfig(data);
+  console.log("Test parseConfig");
   console.log(res);
-
-  const res1 = serializeConfig1(config);
-  console.log(res1);
-
-  const res2 = parseConfig1(res1);
-  console.log(res2);
+}
+async function testSerializeConfig() {
+  console.log("Test serializeConfig");
+  const res = serializeConfig(config);
+  console.log(res);
+}
+async function testSerializeConfig1() {
+  console.log("Test serializeConfig 1");
+  const res = serializeConfig1(config);
+  console.log(res);
+}
+async function testParseConfig1() {
+  const data = await fs.readFile("./.loonygit/config", "utf8");
+  const res = parseConfig1(data);
+  console.log("Test parseConfig1");
+  console.log(res);
 }
 
-main();
+(async () => {
+  await testParseConfig();
+  console.log("\n\n");
+  await testSerializeConfig();
+  console.log("\n\n");
+  await testParseConfig1();
+  console.log("\n\n");
+  await testSerializeConfig1();
+})();

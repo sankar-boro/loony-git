@@ -81,6 +81,7 @@ async function run() {
     log.section("Loading Index");
     await index.load();
     const allIndexes = index.getAll();
+
     log.success(`Loaded ${allIndexes.length} index entries`);
 
     log.section("Building Tree");
@@ -94,14 +95,15 @@ async function run() {
     }
 
     log.success(`Prepared ${entries.size} entries for tree build`);
-    await treeManager.buildTreeFromPath(entries);
+    const __tree = await treeManager.buildTreeFromPath(entries);
+    console.log(__tree);
     log.success("Tree built successfully");
 
-    log.section("Walking Tree");
-    await walkTree(treeManager, rootHash);
+    // log.section("Walking Tree");
+    // await walkTree(treeManager, rootHash);
 
-    log.section("Done");
-    log.success("Tree traversal complete 🎉");
+    // log.section("Done");
+    // log.success("Tree traversal complete 🎉");
   } catch (err) {
     log.section("Fatal Error");
     log.error(err.stack || err.message || err);

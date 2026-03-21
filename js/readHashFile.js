@@ -34,54 +34,9 @@ function getHash() {
   return rootHash;
 }
 
-function parseGitTree(buffer) {
-  const entries = [];
-  let i = buffer.indexOf(0x00) + 1;
-
-  let stringValue = "";
-
-  while (i < buffer.length) {
-    // Read mode
-    let mode = "";
-    while (buffer[i] !== 0x20) {
-      mode += String.fromCharCode(buffer[i]);
-      i++;
-    }
-    i++; // skip space
-
-    // Read filename
-    let name = "";
-    while (buffer[i] !== 0x00) {
-      name += String.fromCharCode(buffer[i]);
-      i++;
-    }
-    i++; // skip null byte
-
-    // Read SHA (20 bytes)
-    const sha = buffer.slice(i, i + 20).toString("hex");
-    i += 20;
-
-    // ✅ Build clean readable line
-    stringValue += `${mode} ${name} ${sha}\n`;
-
-    entries.push({
-      mode,
-      type: mode === "040000" ? "directory" : "file",
-      name,
-      sha,
-    });
-  }
-
-  return {
-    entries,
-    stringValue,
-  };
-}
-
 // Example usage:
 (async () => {
   const hash = getHash();
   const obj = await readObject(".loonygit/objects", hash);
-  const data = parseGitTree(obj.buffer);
-  console.log(data.stringValue);
+  console.log(obj.buffer.toString());
 })();

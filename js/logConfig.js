@@ -1,5 +1,4 @@
-const importconfig = require("../dist/core/config");
-const { Config } = importconfig;
+import { Config } from "./core/config";
 
 async function run() {
   const config = new Config();
@@ -8,6 +7,16 @@ async function run() {
 
   // log
   console.log(allConfig);
+  // console.log("user.name\t\t\t", config.get("user.name"));
+  // console.log("user.email\t\t\t", config.get("user.email"));
+  // console.log("remote.origin.url\t\t", config.get("remote.origin.url"));
+
+  // console.log(
+  //   "user.name: %s\nuser.email: %s\nremote.origin.url: %s",
+  //   config.get("user.name"),
+  //   config.get("user.email"),
+  //   config.get("remote.origin.url"),
+  // );
 
   const entries = [
     ["user.name", config.get("user.name")],

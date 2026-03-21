@@ -1,6 +1,5 @@
-const { TreeManager } = require("../dist/core/tree");
-const { ObjectStore } = require("../dist/core/object-store");
-const { Index } = require("../dist/core/index");
+import { Index } from "./core/index.js";
+import { buildTreeFromPath } from "./core/treeManager.js";
 
 /**
  * Simple logger helpers for nicer DX
@@ -48,14 +47,11 @@ function getRootHashFromArgs() {
 
 async function run() {
   try {
+    const index = new Index(process.cwd());
     log.section("Bootstrapping");
 
     const rootHash = getRootHashFromArgs();
     log.info(`Root tree hash: ${rootHash}`);
-
-    const index = new Index();
-    const objectStore = new ObjectStore();
-    const treeManager = new TreeManager(objectStore);
 
     log.section("Loading Index");
     await index.load();
@@ -74,7 +70,7 @@ async function run() {
     }
 
     log.success(`Prepared ${entries.size} entries for tree build`);
-    const __tree = await treeManager.buildTreeFromPath(entries);
+    const __tree = await buildTreeFromPath(entries);
     console.log(__tree);
     log.success("Tree built successfully");
 

@@ -1,8 +1,10 @@
+import { store, read } from "./objectStore.js";
+
 /**
  * Create a tree object from entries and store it.
  * Entries are sorted to ensure deterministic hashing (Git behavior).
  */
-async function createTree(objectStore, entries) {
+async function createTree(entries) {
   // Ensure stable ordering for consistent hashes
   const sortedEntries = [...entries].sort((a, b) =>
     a.name.localeCompare(b.name),
@@ -25,15 +27,15 @@ async function createTree(objectStore, entries) {
   );
 
   // Store and return content-addressed tree
-  const hash = await objectStore.store(content, "tree");
+  const hash = await store(content, "tree");
   return { type: "tree", entries: sortedEntries, hash };
 }
 
 /**
  * Read a tree object and decode it into structured entries.
  */
-async function readTree(objectStore, hash) {
-  const { type, content } = await objectStore.read(hash);
+async function readTree(hash) {
+  const { type, content } = await read(hash);
 
   if (type !== "tree") {
     throw new Error(`Object ${hash} is not a tree`);
@@ -77,7 +79,7 @@ async function readTree(objectStore, hash) {
  *   src/util.js → blob
  *   README.md → blob
  */
-async function buildTreeFromPath(objectStore, entries) {
+async function buildTreeFromPath(entries) {
   /**
    * Map:
    *   dirPath → (fileName → {hash, mode})
@@ -143,7 +145,7 @@ async function buildTreeFromPath(objectStore, entries) {
     }
 
     // Store this directory as a tree object
-    const tree = await createTree(objectStore, treeEntries);
+    const tree = await createTree(treeEntries);
     cache.set(dir, tree.hash);
 
     return tree.hash;
@@ -151,7 +153,7 @@ async function buildTreeFromPath(objectStore, entries) {
 
   // Build root tree and return parsed structure
   const rootHash = await build("");
-  return readTree(objectStore, rootHash);
+  return readTree(rootHash);
 }
 
 /**
@@ -160,15 +162,15 @@ async function buildTreeFromPath(objectStore, entries) {
  *
  * Useful for diffing, status checks, etc.
  */
-async function flattenTree(objectStore, hash, prefix = "", out = new Map()) {
-  const tree = await readTree(objectStore, hash);
+async function flattenTree(hash, prefix = "", out = new Map()) {
+  const tree = await readTree(hash);
 
   for (const entry of tree.entries) {
     const fullPath = prefix ? `${prefix}/${entry.name}` : entry.name;
 
     if (entry.mode === "040000") {
       // Recurse into subdirectory
-      await flattenTree(objectStore, entry.hash, fullPath, out);
+      await flattenTree(entry.hash, fullPath, out);
     } else {
       // Leaf file
       out.set(fullPath, entry.hash);
@@ -178,9 +180,4 @@ async function flattenTree(objectStore, hash, prefix = "", out = new Map()) {
   return out;
 }
 
-module.exports = {
-  createTree,
-  readTree,
-  buildTreeFromPath,
-  flattenTree,
-};
+export { createTree, readTree, buildTreeFromPath, flattenTree };

@@ -17,8 +17,8 @@ async function readObject(objectsPath, hash) {
 
   // Split header and content: "<type> <size>\0<content>"
   const nullIndex = storeBuffer.indexOf(0);
-  const header = storeBuffer.slice(0, nullIndex).toString("utf-8");
-  const content = storeBuffer.slice(nullIndex + 1);
+  const header = storeBuffer.subarray(0, nullIndex).toString("utf-8");
+  const content = storeBuffer.subarray(nullIndex + 1);
 
   const [type, sizeStr] = header.split(" ");
   const size = Number(sizeStr);

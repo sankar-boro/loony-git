@@ -1,4 +1,4 @@
-const { Index } = require("../dist/core/index");
+const { Index } = require("./core/index");
 
 async function run() {
   try {

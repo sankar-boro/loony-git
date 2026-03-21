@@ -1,14 +1,10 @@
-const { TreeManager } = require("../dist/core/tree");
-const { ObjectStore } = require("../dist/core/object-store");
-const { Index } = require("../dist/core/index");
+const { Index } = require("./core/index");
 const { log } = require("./utils");
-const { buildTreeFromPath } = require("./treeManager");
+const { buildTreeFromPath } = require("./core/treeManager");
 
 async function run() {
   try {
     const index = new Index();
-    const objectStore = new ObjectStore();
-    const treeManager = new TreeManager(objectStore);
 
     await index.load();
     const allIndexes = index.getAll();
@@ -21,7 +17,7 @@ async function run() {
         mode: entry.mode,
       });
     }
-    const __tree = await buildTreeFromPath(objectStore, entries);
+    const __tree = await buildTreeFromPath(entries);
     console.log(__tree);
   } catch (err) {
     log.section("Fatal Error");

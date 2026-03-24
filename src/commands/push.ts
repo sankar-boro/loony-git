@@ -1,11 +1,10 @@
-import * as path from "path";
-import * as fs from "fs/promises";
 import fetch from "node-fetch";
 
 import { ObjectStore } from "../core";
 import { Config } from "../core/config";
-import { getHeadRef, getRefPath, getLocalCommit } from "../paths";
+import { getLocalCommit } from "../paths";
 import { getRepoName, collectObjects } from "../utils/index";
+import { parseGitUrl } from "../utils/config";
 
 const API_URL = process.env.API_URL;
 
@@ -27,17 +26,17 @@ export async function pushCommand(
 
   const objects = await collectObjects(objectStore, localCommit);
   const email = allConfig.user?.email;
-  const repoName = getRepoName(remoteUrl as string);
+  const { username, repo } = parseGitUrl(remoteUrl as string);
 
   const payload = {
     branch,
     head: localCommit,
     objects,
     email,
-    repo: repoName,
+    repo: repo,
   };
 
-  const response = await fetch(API_URL + "/" + repoName + "/" + "push", {
+  const response = await fetch(`${API_URL}/${username}/${repo}/push`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

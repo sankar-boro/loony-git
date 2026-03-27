@@ -86,15 +86,15 @@ export class TreeManager {
     while (offset < content.length) {
       const modeEnd = content.indexOf(32, offset); // space
       const mode = content
-        .slice(offset, modeEnd)
+        .subarray(offset, modeEnd)
         .toString("utf-8") as TreeEntry["mode"];
 
       const nameStart = modeEnd + 1;
       const nameEnd = content.indexOf(0, nameStart); // null byte
-      const name = content.slice(nameStart, nameEnd).toString("utf-8");
+      const name = content.subarray(nameStart, nameEnd).toString("utf-8");
 
       const hashStart = nameEnd + 1;
-      const hash = content.slice(hashStart, hashStart + 20).toString("hex");
+      const hash = content.subarray(hashStart, hashStart + 20).toString("hex");
 
       entries.push({ mode, name, hash });
       offset = hashStart + 20;

@@ -2,24 +2,7 @@ import fs from "fs";
 import path from "path";
 import { loonyignorePath } from "../paths";
 import { matchesRule } from "../utils";
-
-interface Rule {
-  pattern: string;
-  regex: RegExp;
-  negate: boolean;
-  dirOnly: boolean;
-  basePattern: string | null;
-  isRootRelative: boolean;
-  hasMagic: boolean;
-  raw: string;
-}
-
-interface IgnoreOptions {
-  dot?: boolean;
-  caseSensitive?: boolean;
-  allowNegation?: boolean;
-  cache?: boolean;
-}
+import { IgnoreOptions, Rule } from "../types";
 
 export function createIgnore(options: IgnoreOptions = {}) {
   const opts: Required<IgnoreOptions> = {

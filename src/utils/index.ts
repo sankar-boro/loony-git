@@ -10,3 +10,7 @@ export { getRepoName } from "./getRepoName";
 export { collectObjects } from "./collectObjects";
 export { writeObject } from "./writeObject";
 export { readObject } from "./readObject";
+export {
+  listFiles,
+  readAllFilesAndDirectories,
+} from "./readAllFilesAndDirectories";

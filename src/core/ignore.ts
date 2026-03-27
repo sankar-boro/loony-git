@@ -1,25 +1,11 @@
+/**
+ * Not in use
+ */
 import fs from "fs";
 import path from "path";
 import { loonyignorePath } from "../paths";
 import { matchesRule } from "../utils";
-
-interface Rule {
-  pattern: string;
-  regex: RegExp;
-  negate: boolean;
-  dirOnly: boolean;
-  basePattern: string | null; // For patterns without slashes
-  isRootRelative: boolean;
-  hasMagic: boolean; // Has wildcards
-  raw: string;
-}
-
-interface IgnoreOptions {
-  dot?: boolean; // Whether to ignore dot files
-  caseSensitive?: boolean;
-  allowNegation?: boolean;
-  cache?: boolean;
-}
+import { Rule, IgnoreOptions } from "../types";
 
 export class Ignore {
   private rules: Rule[] = [];

@@ -1,9 +1,4 @@
-import { ConfigValues } from "../core/config";
-
-export type RemoteMap = Record<
-  string,
-  { url?: string; fetch?: string | string[] }
->;
+import { RemoteMap } from "../types";
 
 export function getRemotes(config: any): RemoteMap {
   const all = config.listAll();

@@ -3,6 +3,18 @@ import path from "path";
 import { normalizePath, matchesRule, getStats } from "./index";
 import { IgnoreOptions, Rule } from "../types";
 
+const IgnorePatterns = [
+  ".git",
+  "node_modules",
+  ".DS_Store",
+  "*.log",
+  ".loonygit",
+  "dist",
+  "build",
+  "lib",
+  ".env",
+];
+
 function shouldIgnore1(filePath: string, isDir?: boolean): boolean {
   let rules: Rule[] = [];
   let options: Required<IgnoreOptions>;
@@ -108,7 +120,10 @@ function shouldIgnore1(filePath: string, isDir?: boolean): boolean {
  * @param {string[]} ignorePatterns - Glob patterns to ignore
  * @returns {boolean}
  */
-export function shouldIgnore(filePath: string, ignorePatterns: string[]) {
+export function shouldIgnore(
+  filePath: string,
+  ignorePatterns: string[] = IgnorePatterns,
+) {
   if (!ignorePatterns || ignorePatterns.length === 0) return false;
 
   return ignorePatterns.some((pattern) => {

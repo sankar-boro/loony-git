@@ -103,3 +103,22 @@ export interface Commit {
 }
 
 export type Object = Blob | Tree | Commit;
+
+export interface FileStatus {
+  path: string;
+  status: "untracked" | "modified" | "deleted" | "added" | "unmodified";
+}
+
+export interface IndexEntry {
+  hash: string;
+  mode: string;
+  path: string;
+  stage: number; // 0 for normal, 1-3 for merge conflicts
+  mtime?: number; // modification time for performance
+  size?: number; // file size for performance
+}
+
+export type RemoteMap = Record<
+  string,
+  { url?: string; fetch?: string | string[] }
+>;

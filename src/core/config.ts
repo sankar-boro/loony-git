@@ -2,33 +2,7 @@ import * as fs from "fs/promises";
 
 import { deserializeConfig, serializeConfig, parseValue } from "../utils";
 import { localConfigPath, globalConfigPath } from "../paths";
-
-export interface ConfigValues {
-  user?: {
-    name?: string;
-    email?: string;
-  };
-  core?: {
-    editor?: string;
-    autocrlf?: boolean;
-    excludesfile?: string;
-    pager?: string;
-  };
-  color?: {
-    ui?: boolean;
-    status?: string;
-    branch?: string;
-  };
-  alias?: Record<string, string>;
-  remote?: Record<
-    string,
-    {
-      url?: string | string[];
-      fetch?: string;
-    }
-  >;
-  [key: string]: any;
-}
+import type { ConfigValues } from "../types";
 
 export class Config {
   private globalConfigPath: string;

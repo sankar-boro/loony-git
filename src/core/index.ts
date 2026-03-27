@@ -3,7 +3,7 @@ export { ObjectStore } from "./object-store";
 export { BlobManager } from "./blob";
 export { TreeManager } from "./tree";
 export { CommitManager } from "./commit";
-export { Workspace, FileStatus } from "./workspace";
+export { Workspace } from "./workspace";
 export { Config } from "./config";
 
 import * as fs from "fs/promises";
@@ -11,15 +11,7 @@ import * as path from "path";
 import { Workspace } from "./workspace";
 import { ObjectStore } from "./object-store";
 import { indexPath } from "../paths";
-
-export interface IndexEntry {
-  hash: string;
-  mode: string;
-  path: string;
-  stage: number; // 0 for normal, 1-3 for merge conflicts
-  mtime?: number; // modification time for performance
-  size?: number; // file size for performance
-}
+import { IndexEntry } from "../types";
 
 export class Index {
   private entries: Map<string, IndexEntry> = new Map();

@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import path from "path";
+import * as path from "path";
 
 import { shouldIgnore } from "./shouldIgnore";
 
@@ -28,14 +28,6 @@ export async function readAllFilesAndDirectories(
   },
 ): Promise<any[]> {
   const {
-    ignore = [
-      ".git",
-      "node_modules",
-      ".DS_Store",
-      "*.log",
-      ".loonygit",
-      "dist",
-    ],
     includeDirectories = true,
     includeFiles = true,
     absolute = false,
@@ -51,7 +43,7 @@ export async function readAllFilesAndDirectories(
     const relativePath = path.relative(rootPath, fullPath);
 
     // Check if should ignore
-    if (shouldIgnore(relativePath, ignore)) {
+    if (shouldIgnore(relativePath)) {
       continue;
     }
 
@@ -81,5 +73,29 @@ export async function readAllFilesAndDirectories(
     }
   }
 
+  return files;
+}
+
+export async function listFiles(rootPath: string) {
+  const files: string[] = [];
+
+  const walk = async (dir: string) => {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      // Check loonyignore
+      if (shouldIgnore(fullPath)) continue;
+
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+      } else {
+        files.push(path.relative(rootPath, fullPath));
+      }
+    }
+  };
+
+  await walk(rootPath);
   return files;
 }

@@ -1,5 +1,4 @@
 import * as fs from "fs/promises";
-import * as path from "path";
 import { Hash } from "../types";
 import { objectsPath } from "../paths";
 import { writeObject, readObject } from "../utils";
@@ -20,10 +19,7 @@ export class ObjectStore {
   }
 
   async read(hash: Hash): Promise<{ type: string; content: Buffer }> {
-    return await readObject(
-      hash,
-      path.join(this.objectsPath, hash.slice(0, 2), hash.slice(2)),
-    );
+    return await readObject(hash, this.objectsPath);
   }
 
   async readObject(hash: Hash): Promise<{ type: string; content: Buffer }> {

@@ -1,8 +1,14 @@
 import { TreeEntry } from "../types/index";
 
-export function parseTree(buffer: Buffer): TreeEntry[] {
+export function parseTree(
+  buffer: Buffer,
+  skipMetadata: boolean = false,
+): TreeEntry[] {
+  // Note
+  // buffer.indexOf(0x00) + 1 => "<mode> <length>\0"
+
   const entries: TreeEntry[] = [];
-  let i = 0;
+  let i = skipMetadata ? buffer.indexOf(0x00) + 1 : 0;
 
   while (i < buffer.length) {
     // read mode

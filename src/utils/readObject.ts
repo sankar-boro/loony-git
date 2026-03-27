@@ -9,9 +9,9 @@ const inflateAsync = promisify(inflate);
 
 export async function readObject(
   hash: Hash,
-  readPath: string,
+  objectDir: string,
 ): Promise<{ type: string; content: Buffer }> {
-  const objectPath = path.join(readPath, hash.slice(0, 2), hash.slice(2));
+  const objectPath = path.join(objectDir, hash.slice(0, 2), hash.slice(2));
   const compressed = await fs.readFile(objectPath);
   const decompressed = await inflateAsync(compressed);
 

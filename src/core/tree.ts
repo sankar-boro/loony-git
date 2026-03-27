@@ -1,5 +1,5 @@
 import { ObjectStore } from "./object-store";
-import { Hash, Tree, TreeEntry } from "./types";
+import { Hash, Tree, TreeEntry } from "../types";
 
 /**
  * TreeManager is responsible for creating, reading, and traversing tree objects.

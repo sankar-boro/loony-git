@@ -1,5 +1,5 @@
 import { ObjectStore } from "./object-store";
-import { Hash, Commit } from "./types";
+import { Hash, Commit } from "../types";
 
 export class CommitManager {
   constructor(private objectStore: ObjectStore) {}

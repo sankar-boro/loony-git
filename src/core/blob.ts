@@ -1,5 +1,5 @@
 import { ObjectStore } from "./object-store";
-import { Hash, Blob } from "./types";
+import { Hash, Blob } from "../types";
 
 export class BlobManager {
   constructor(private objectStore: ObjectStore) {}

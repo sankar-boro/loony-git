@@ -1,4 +1,4 @@
-export * from "./types";
+export * from "../types";
 export { ObjectStore } from "./object-store";
 export { BlobManager } from "./blob";
 export { TreeManager } from "./tree";

@@ -3,8 +3,7 @@ import fetch from "node-fetch";
 import { ObjectStore } from "../core";
 import { Config } from "../core/config";
 import { getLocalCommit } from "../paths";
-import { getRepoName, collectObjects } from "../utils/index";
-import { parseGitUrl } from "../utils/config";
+import { getRepoName, collectObjects, parseGitUrl } from "../utils";
 
 const API_URL = process.env.API_URL;
 

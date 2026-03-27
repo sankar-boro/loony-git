@@ -1,6 +1,6 @@
 import * as fs from "fs/promises";
 
-import { parseConfig, parseValue, serializeConfig } from "../utils/config";
+import { deserializeConfig, serializeConfig, parseValue } from "../utils";
 import { localConfigPath, globalConfigPath } from "../paths";
 
 export interface ConfigValues {
@@ -86,7 +86,7 @@ export class Config {
   }
 
   private parseConfig(content: string): ConfigValues {
-    return parseConfig(content);
+    return deserializeConfig(content);
   }
 
   private serializeConfig(config: ConfigValues): string {

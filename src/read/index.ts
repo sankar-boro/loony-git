@@ -1,0 +1,1 @@
+export { readIndex } from "./readIndex";

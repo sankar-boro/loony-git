@@ -11,6 +11,7 @@ export { collectObjects } from "./collectObjects";
 export { writeObject } from "./writeObject";
 export { readObject } from "./readObject";
 export { parseTree } from "./parseTree";
+export { shouldIgnore } from "./shouldIgnore";
 
 export {
   listFiles,

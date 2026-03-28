@@ -3,40 +3,25 @@ import * as path from "path";
 import * as fs from "fs/promises";
 import { indexPath } from "../paths";
 import { IndexEntry } from "../core/index";
+import { readIndex } from "../read";
 
 export async function addCommand(
   repoPath: string,
-  files: string[] = ["."],
+  userAddFiles: string[] = ["."],
 ): Promise<void> {
   const workspace = new Workspace();
   const objectStore = new ObjectStore();
   const blobManager = new BlobManager(objectStore);
   // const treeManager = new TreeManager(objectStore);
 
-  let index: Map<string, IndexEntry> = new Map();
+  let index: Map<string, IndexEntry> = await readIndex(repoPath);
 
-  try {
-    const indexContent = await fs.readFile(indexPath, "utf-8");
-    const lines = indexContent.split("\n").filter((l) => l);
-    for (const line of lines) {
-      const [hash, mode, path, stage, mtime, size] = line.split(" ");
-      index.set(path, {
-        hash,
-        mode,
-        path,
-        stage: parseInt(stage),
-        mtime: parseFloat(mtime),
-        size: parseInt(size),
-      });
-    }
-  } catch (error) {
-    // Index doesn't exist yet
-  }
-  const allFiles = await workspace.listFiles();
+  const workspaceFiles = await workspace.listFiles();
+
   // Add files to index
-  for (const pattern of files) {
+  for (const pattern of userAddFiles) {
     // Simple glob pattern - in real implementation, use a proper glob library
-    const matchedFiles = allFiles.filter(
+    const matchedFiles = workspaceFiles.filter(
       (f) => f.includes(pattern) || pattern === ".",
     );
     for (const file of matchedFiles) {

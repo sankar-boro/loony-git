@@ -1,64 +1,63 @@
-// import * as path from "path";
-// import * as fs from "fs/promises";
-// import {
-//   ObjectStore,
-//   CommitManager,
-//   TreeManager,
-//   Workspace,
-//   BlobManager,
-//   Index,
-// } from "../core";
-// import { Config } from "../core/config";
-// import { headPath } from "../paths";
+import * as path from "path";
+import * as fs from "fs/promises";
+import {
+  ObjectStore,
+  CommitManager,
+  TreeManager,
+  Workspace,
+  BlobManager,
+  Index,
+} from "../core";
+import { Config } from "../core/config";
+import { headPath } from "../paths";
 
-// export async function mergeCommand(
-//   repoPath: string,
-//   branchName: string,
-//   message?: string,
-//   author?: { name: string; email: string },
-// ): Promise<void> {
-//   const config = new Config();
-//   const objectStore = new ObjectStore();
-//   const workspace = new Workspace();
-//   const index = new Index(repoPath);
-//   const commitManager = new CommitManager(objectStore);
-//   const treeManager = new TreeManager(objectStore);
-//   const blobManager = new BlobManager(objectStore);
+export async function mergeCommand(
+  repoPath: string,
+  branchName: string,
+  message?: string,
+  author?: { name: string; email: string },
+): Promise<void> {
+  const config = new Config();
+  const objectStore = new ObjectStore();
+  const workspace = new Workspace();
+  const index = new Index(repoPath);
+  const commitManager = new CommitManager(objectStore);
+  const treeManager = new TreeManager(objectStore);
+  const blobManager = new BlobManager(objectStore);
 
-//   await config.loadAll();
+  await config.loadAll();
 
-//   let authorInfo = author;
-//   if (!authorInfo) {
-//     try {
-//       authorInfo = await config.getUserInfo();
-//     } catch (error: any) {
-//       console.error(error.message);
-//       process.exit(1);
-//     }
-//   }
+  let authorInfo = author;
+  if (!authorInfo) {
+    try {
+      authorInfo = await config.getUserInfo();
+    } catch (error: any) {
+      console.error(error.message);
+      process.exit(1);
+    }
+  }
+  // Load current index
+  await index.load();
 
-//   // Load current index
-//   await index.load();
+  // Check if there are uncommitted changes
+  if (index.getAll().length > 0) {
+    console.error(
+      "Cannot merge: you have uncommitted changes. Commit or stash them first.",
+    );
+    process.exit(1);
+  }
+  // Get current HEAD
+  const headRef = (await fs.readFile(headPath, "utf-8")).trim();
+  let currentCommitHash: string;
 
-//   // Check if there are uncommitted changes
-//   if (index.getAll().length > 0) {
-//     console.error(
-//       "Cannot merge: you have uncommitted changes. Commit or stash them first.",
-//     );
-//     process.exit(1);
-//   }
-
-//   // Get current HEAD
-//   const headRef = (await fs.readFile(headPath, "utf-8")).trim();
-//   let currentCommitHash: string;
-
-//   if (headRef.startsWith("ref: ")) {
-//     const refPath = path.join(repoPath, ".loonygit", headRef.slice(5));
-//     currentCommitHash = await fs.readFile(refPath, "utf-8");
-//     currentCommitHash = currentCommitHash.trim();
-//   } else {
-//     currentCommitHash = headRef;
-//   }
+  if (headRef.startsWith("ref: ")) {
+    const refPath = path.join(repoPath, ".loonygit", headRef.slice(5));
+    currentCommitHash = await fs.readFile(refPath, "utf-8");
+    currentCommitHash = currentCommitHash.trim();
+  } else {
+    currentCommitHash = headRef;
+  }
+}
 
 //   // Get the commit hash of the branch to merge
 //   const branchPath = path.join(

@@ -1,24 +1,24 @@
 export const log = {
-  section: (title) => {
+  section: (title: string) => {
     console.log(`\n==================== ${title} ====================`);
   },
-  info: (msg) => {
+  info: (msg: string) => {
     console.log(`ℹ️  ${msg}`);
   },
-  success: (msg) => {
+  success: (msg: string) => {
     console.log(`✅ ${msg}`);
   },
-  warn: (msg) => {
+  warn: (msg: string) => {
     console.warn(`⚠️  ${msg}`);
   },
-  error: (msg) => {
+  error: (msg: string) => {
     console.error(`❌ ${msg}`);
   },
-  tree: (depth, msg) => {
+  tree: (depth: number, msg: string) => {
     const indent = "  ".repeat(depth);
     console.log(`${indent}📁 ${msg}`);
   },
-  file: (depth, msg) => {
+  file: (depth: number, msg: string) => {
     const indent = "  ".repeat(depth);
     console.log(`${indent}📄 ${msg}`);
   },

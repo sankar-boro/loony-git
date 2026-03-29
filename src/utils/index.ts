@@ -21,6 +21,7 @@ export { getAllFiles } from "./getAllFiles";
 export { removeEmptyDirectories } from "./removeEmptyDirectories";
 export { resolveCommitHash } from "./resolveCommitHash";
 export { getTrackedFiles } from "./getTrackedFiles";
+export { clearWorkspace } from "./clearWorkspace";
 
 export {
   listFiles,

@@ -12,9 +12,10 @@ import {
   resolveCommitHash,
   checkoutTree,
   getTrackedFiles,
+  clearWorkspace,
 } from "../utils";
 
-export async function checkoutCommand(
+export async function testCheckoutCommand(
   repoPath: string,
   target: string,
   options: { force?: boolean } = {},
@@ -81,46 +82,54 @@ export async function checkoutCommand(
     const currentHead = await getCurrentHead();
     const currentBranch = await getCurrentBranch(repoPath);
 
+    console.log({
+      currentHead,
+      currentBranch,
+    });
+    console.log(
+      `Checking out ${isBranch ? "branch" : "commit"} '${target}'...`,
+    );
+
     try {
-      // Clear workspace and index
-      await clearWorkspace(repoPath, workspace);
+      //   // Clear workspace and index
+      //   await clearWorkspace(repoPath, workspace);
 
       // Read and checkout commit tree
       const commit = await commitManager.readCommit(commitHash);
+      console.log(`Commit message: ${commit.message}`);
       await checkoutTree(repoPath, commit.tree, treeManager, workspace);
 
-      // Update HEAD
-      if (isBranch) {
-        // Switch to branch: update HEAD to point to branch
-        await fs.writeFile(headPath, `ref: refs/heads/${target}`);
-        console.log(`Switched to branch '${target}'`);
-      } else {
-        // Detached HEAD: write commit hash directly
-        await fs.writeFile(headPath, commitHash);
-        console.log(
-          `HEAD is now at ${commitHash.slice(0, 7)} ${commit.message || "commit"}`,
-        );
-      }
+      //   // Update HEAD
+      //   if (isBranch) {
+      //     // Switch to branch: update HEAD to point to branch
+      //     await fs.writeFile(headPath, `ref: refs/heads/${target}`);
+      //     console.log(`Switched to branch '${target}'`);
+      //   } else {
+      //     // Detached HEAD: write commit hash directly
+      //     await fs.writeFile(headPath, commitHash);
+      //     console.log(
+      //       `HEAD is now at ${commitHash.slice(0, 7)} ${commit.message || "commit"}`,
+      //     );
+      //   }
 
-      // Update index with the new tree state
-      await updateIndexFromTree(
-        repoPath,
-        commit.tree,
-        treeManager,
-        objectStore,
-      );
+      //   // Update index with the new tree state
+      //   await updateIndexFromTree(
+      //     repoPath,
+      //     commit.tree,
+      //     treeManager,
+      //     objectStore,
+      //   );
 
-      // Update working directory timestamps in index
-      await updateIndexTimestamps(repoPath, workspace);
+      //   // Update working directory timestamps in index
+      //   await updateIndexTimestamps(repoPath, workspace);
     } catch (error) {
-      // Rollback to previous state on error
-      console.error(`Checkout failed: ${(error as Error).message}`);
-      console.log("Rolling back...");
-
-      if (currentHead) {
-        await restoreState(repoPath, currentHead, currentBranch, workspace);
-      }
-      throw error;
+      //   // Rollback to previous state on error
+      //   console.error(`Checkout failed: ${(error as Error).message}`);
+      //   console.log("Rolling back...");
+      //   if (currentHead) {
+      //     await restoreState(repoPath, currentHead, currentBranch, workspace);
+      //   }
+      //   throw error;
     }
   } catch (error) {
     console.error(`Error during checkout: ${(error as Error).message}`);
@@ -179,27 +188,6 @@ async function isWorkspaceClean(
     // If we can't determine, assume not clean
     return false;
   }
-}
-
-async function clearWorkspace(
-  repoPath: string,
-  workspace: Workspace,
-): Promise<void> {
-  // Get all tracked files from index or HEAD
-  const trackedFiles = await getTrackedFiles(repoPath);
-
-  // Remove tracked files from workspace
-  for (const file of trackedFiles) {
-    const fullPath = path.join(repoPath, file);
-    try {
-      await fs.unlink(fullPath);
-    } catch (error) {
-      // File might not exist, ignore
-    }
-  }
-
-  // Also remove empty directories (optional)
-  await removeEmptyDirectories(repoPath);
 }
 
 async function updateIndexTimestamps(

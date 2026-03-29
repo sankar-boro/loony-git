@@ -9,6 +9,8 @@ import { addCommand } from "./commands/add";
 import { commitCommand } from "./commands/commit";
 import { logCommand } from "./commands/log";
 import { checkoutCommand } from "./commands/checkout";
+import { testCheckoutCommand } from "./commands/test.checkout";
+
 import { branchCommand } from "./commands/branch";
 import { statusCommand } from "./commands/status";
 import { diffCommand } from "./commands/diff";
@@ -104,6 +106,19 @@ program
   .action(async (target: string) => {
     try {
       await checkoutCommand(repoPath, target);
+    } catch (error: any) {
+      console.error("Error:", error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command("checkoutTest")
+  .description("Switch branches or restore working tree files")
+  .argument("<target>", "branch or commit to checkout")
+  .action(async (target: string) => {
+    try {
+      await testCheckoutCommand(repoPath, target);
     } catch (error: any) {
       console.error("Error:", error.message);
       process.exit(1);

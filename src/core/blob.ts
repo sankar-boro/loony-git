@@ -24,4 +24,8 @@ export class BlobManager {
       hash,
     };
   }
+
+  async getBlob(hash: Hash): Promise<Blob> {
+    return await this.readBlob(hash);
+  }
 }

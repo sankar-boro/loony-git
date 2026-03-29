@@ -25,4 +25,8 @@ export class ObjectStore {
   async readObject(hash: Hash): Promise<{ type: string; content: Buffer }> {
     return await this.read(hash);
   }
+
+  async getObject(hash: Hash): Promise<{ type: string; content: Buffer }> {
+    return await this.read(hash);
+  }
 }

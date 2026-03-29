@@ -91,4 +91,8 @@ export class CommitManager {
       hash,
     };
   }
+
+  async getCommit(hash: Hash) {
+    return await this.readCommit(hash);
+  }
 }

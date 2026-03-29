@@ -18,6 +18,7 @@ import { configCommand } from "./commands/config";
 import { remoteCommand } from "./commands/remote";
 import { pushCommand } from "./commands/push";
 import { Config } from "./core";
+import { mergeCommand } from "./commands/merge";
 
 const repoPath = path.resolve(process.cwd());
 
@@ -138,6 +139,31 @@ program
     ) => {
       try {
         await branchCommand(repoPath, branchName, options);
+      } catch (error: any) {
+        console.error("Error:", error.message);
+        process.exit(1);
+      }
+    },
+  );
+
+program
+  .command("merge")
+  .description("Merge a branch into the current branch")
+  .argument("[branch-name]", "name of the branch to merge")
+  .option("-m, --message <message>", "commit message")
+  .option("--author <author>", 'author in format "Name <email>"')
+  .action(
+    async (
+      branchName: string,
+      options: { message?: string; author?: string },
+    ) => {
+      try {
+        await mergeCommand(
+          repoPath,
+          branchName,
+          options.message,
+          { name: "Sankar boro", email: "sankar.boro@yahoo.com" }, // Placeholder author info
+        );
       } catch (error: any) {
         console.error("Error:", error.message);
         process.exit(1);

@@ -107,6 +107,10 @@ export class TreeManager {
     return { type: "tree", entries, hash };
   }
 
+  async getTree(hash: Hash): Promise<Tree> {
+    return await this.readTree(hash);
+  }
+
   /**
    * Builds a full tree hierarchy from flat file paths.
    *

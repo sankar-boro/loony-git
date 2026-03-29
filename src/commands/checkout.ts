@@ -58,7 +58,7 @@ export async function checkoutCommand(
   await checkoutTree(commit.tree);
 
   // Update HEAD
-  await fs.writeFile(headPath, commitHash);
+  await fs.writeFile(headPath, "ref: refs/heads/" + target);
 
   console.log(`HEAD is now at ${commitHash.slice(0, 7)} ${commit.message}`);
 }

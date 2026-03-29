@@ -9,17 +9,28 @@ import {
 } from "./values";
 
 const repoPath = path.resolve(process.cwd());
+const CWD = repoPath;
 const loonygitPath = path.join(repoPath, APP_NAME);
+const LOONY_GIT_PATH = loonygitPath;
 const objectsPath = path.join(loonygitPath, "objects");
+const OBJECTS = objectsPath;
 const refsPath = path.join(loonygitPath, "refs");
-const headsPath = path.join(refsPath, "heads");
-const tagsPath = path.join(refsPath, "tags");
+const REFS = refsPath;
 const headPath = path.join(loonygitPath, "HEAD");
+const HEAD = headPath;
+const indexPath = path.join(loonygitPath, "index");
+const INDEX = indexPath;
 const configPath = path.join(loonygitPath, "config");
+const CONFIG = configPath;
+//
+const headsPath = path.join(refsPath, "heads");
+const Heads = headsPath;
+const tagsPath = path.join(refsPath, "tags");
+const Tags = tagsPath;
+//
 const globalConfigPath = path.join(os.homedir(), GLOBAL_CONFIG_NAME);
 const localConfigPath = path.join(loonygitPath, LOCAL_CONFIG_NAME);
 const loonyignorePath = path.join(repoPath, APP_IGNORE_NAME);
-const indexPath = path.join(loonygitPath, "index");
 const branchesPath = path.join(loonygitPath, "refs", "heads");
 const getHeadRef = async () =>
   (await fsPromises.readFile(headPath, "utf-8")).trim();
@@ -36,6 +47,14 @@ const getLocalCommit = async () => {
 const getCurrentHash = getLocalCommit;
 
 export {
+  CWD,
+  LOONY_GIT_PATH,
+  OBJECTS,
+  REFS,
+  HEAD,
+  INDEX,
+  Heads,
+  Tags,
   repoPath,
   loonygitPath,
   objectsPath,

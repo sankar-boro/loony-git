@@ -33,6 +33,14 @@ export class Workspace {
     return createHash("sha1").update(storeBuffer).digest("hex");
   }
 
+  async hashFile(filePath: string): Promise<string> {
+    const data = await this.readFile(filePath);
+    const header = `blob ${data.length}\0`;
+    const storeBuffer = Buffer.concat([Buffer.from(header, "utf-8"), data]);
+
+    return createHash("sha1").update(storeBuffer).digest("hex");
+  }
+
   async writeFile(filePath: string, content: Buffer): Promise<void> {
     const fullPath = path.join(this.rootPath, filePath);
     await fs.mkdir(path.dirname(fullPath), { recursive: true });

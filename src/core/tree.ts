@@ -19,7 +19,11 @@ import { Hash, Tree, TreeEntry } from "../types";
  *   040000 src\0<tree-hash>
  */
 export class TreeManager {
-  constructor(private objectStore: ObjectStore) {}
+  objectStore: ObjectStore;
+
+  constructor(objectStore: ObjectStore) {
+    this.objectStore = objectStore;
+  }
 
   /**
    * Creates and stores a tree object from a list of entries.

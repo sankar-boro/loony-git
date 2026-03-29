@@ -12,6 +12,15 @@ export { writeObject } from "./writeObject";
 export { readObject } from "./readObject";
 export { parseTree } from "./parseTree";
 export { shouldIgnore } from "./shouldIgnore";
+export { getCurrentHead } from "./getCurrentHead";
+export { getCurrentBranch } from "./getCurrentBranch";
+export { checkoutTree } from "./checkoutTree";
+export { updateIndexFromTree } from "./updateIndexFromTree";
+export { restoreState } from "./restoreState";
+export { getAllFiles } from "./getAllFiles";
+export { removeEmptyDirectories } from "./removeEmptyDirectories";
+export { resolveCommitHash } from "./resolveCommitHash";
+export { getTrackedFiles } from "./getTrackedFiles";
 
 export {
   listFiles,

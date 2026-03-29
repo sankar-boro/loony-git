@@ -1,7 +1,7 @@
 import { Workspace, ObjectStore, BlobManager, TreeManager } from "../core";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { indexPath } from "../paths";
+import { INDEX } from "../paths";
 import { IndexEntry } from "../core/index";
 import { readIndex } from "../read";
 
@@ -14,7 +14,7 @@ export async function addCommand(
   const blobManager = new BlobManager(objectStore);
   // const treeManager = new TreeManager(objectStore);
 
-  let index: Map<string, IndexEntry> = await readIndex(repoPath);
+  let index: Map<string, IndexEntry> = await readIndex(INDEX);
 
   const workspaceFiles = await workspace.listFiles();
 
@@ -50,5 +50,5 @@ export async function addCommand(
       `${hash} ${mode} ${path} ${stage} ${mtime} ${size}`,
   );
 
-  await fs.writeFile(indexPath, indexLines.join("\n"));
+  await fs.writeFile(INDEX, indexLines.join("\n"));
 }

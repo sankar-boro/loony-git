@@ -10,6 +10,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import { Workspace } from "./workspace";
 import { ObjectStore } from "./object-store";
+import { TreeManager } from "./tree";
 import { indexPath } from "../paths";
 import { IndexEntry } from "../types";
 
@@ -154,5 +155,43 @@ export class Index {
     }
 
     return { modified, deleted, added };
+  }
+
+  async updateFromTree(
+    treeManager: TreeManager,
+    treeHash: string,
+  ): Promise<void> {
+    this.entries.clear();
+    this.dirty = true;
+
+    const addTreeEntries = async (hash: string, basePath = "") => {
+      const tree = await treeManager.readTree(hash);
+
+      for (const entry of tree.entries) {
+        const fullPath = basePath
+          ? path.join(basePath, entry.name)
+          : entry.name;
+
+        if (entry.mode === "040000") {
+          await addTreeEntries(entry.hash, fullPath);
+        } else {
+          try {
+            const stats = await fs.stat(path.join(this.repoPath, fullPath));
+            this.entries.set(fullPath, {
+              hash: entry.hash,
+              mode: entry.mode,
+              path: fullPath,
+              stage: 0,
+              mtime: stats.mtimeMs,
+              size: stats.size,
+            });
+          } catch (error) {
+            // file missing in workspace (should not happen after checkout)
+          }
+        }
+      }
+    };
+
+    await addTreeEntries(treeHash);
   }
 }

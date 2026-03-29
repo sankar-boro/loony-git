@@ -1,4 +1,10 @@
-import { ObjectStore, CommitManager, TreeManager, Workspace } from "../core";
+import {
+  ObjectStore,
+  CommitManager,
+  TreeManager,
+  Workspace,
+  Index,
+} from "../core";
 import * as path from "path";
 import * as fs from "fs/promises";
 
@@ -13,12 +19,16 @@ export async function checkoutCommand(
   const treeManager = new TreeManager(objectStore);
   const workspace = new Workspace();
 
-  // Resolve target to commit hash
+  // Load current index (for untracked detection)
+  const index = new Index(repoPath);
+  await index.load();
+
+  // Resolve target to commit hash and HEAD value
   let commitHash = target;
-  if (target.length === 40 && /^[0-9a-f]+$/.test(target)) {
-    // Already a hash
-  } else {
-    // Check if it's a branch
+  let headValue = target;
+
+  if (target.length !== 40 || !/^[0-9a-f]+$/.test(target)) {
+    const branchRef = `refs/heads/${target}`;
     const branchPath = path.join(
       repoPath,
       ".loonygit",
@@ -28,37 +38,52 @@ export async function checkoutCommand(
     );
     try {
       commitHash = (await fs.readFile(branchPath, "utf-8")).trim();
-    } catch (error) {
+      headValue = `ref: ${branchRef}`;
+    } catch {
       throw new Error(`Unknown revision: ${target}`);
     }
   }
 
-  // Read commit
+  // Read commit and tree
   const commit = await commitManager.readCommit(commitHash);
-  const tree = await treeManager.readTree(commit.tree);
+  const targetTreeHash = commit.tree;
 
-  // Recursively checkout tree
-  const checkoutTree = async (treeHash: any, basePath: string = "") => {
-    const tree = await treeManager.readTree(treeHash);
+  // Build desired index/tree representation
+  const targetFiles = await treeManager.flattenTree(targetTreeHash);
+  const workspaceFiles = await workspace.listFiles();
 
-    for (const entry of tree.entries) {
-      const fullPath = basePath ? path.join(basePath, entry.name) : entry.name;
+  // Do not checkout when untracked files exist in workspace
+  const trackedFiles = new Set(index.getAll().map((entry) => entry.path));
+  const untrackedFiles = workspaceFiles.filter((f) => !trackedFiles.has(f));
+  if (untrackedFiles.length > 0) {
+    throw new Error(
+      `Cannot checkout ${target}: untracked files would be overwritten:\n` +
+        untrackedFiles.map((f) => `  ${f}`).join("\n"),
+    );
+  }
 
-      if (entry.mode === "040000") {
-        // Directory
-        await checkoutTree(entry.hash, fullPath);
-      } else {
-        // File
-        const { content } = await objectStore.read(entry.hash);
-        // await workspace.writeFile(fullPath, content);
-      }
+  // Remove files that are tracked but not part of target tree (branch switch cleanup)
+  for (const file of workspaceFiles) {
+    if (!targetFiles.has(file)) {
+      await workspace.deleteFile(file).catch(() => {
+        // ignore files that may have been removed already
+      });
     }
-  };
+  }
 
-  await checkoutTree(commit.tree);
+  // Write checked out files from tree
+  for (const [filePath, blobHash] of targetFiles.entries()) {
+    const { content } = await objectStore.read(blobHash);
+    await workspace.writeFile(filePath, content);
+  }
+
+  // Update index to match tree state
+  const newIndex = new Index(repoPath);
+  await newIndex.updateFromTree(treeManager, targetTreeHash);
+  await newIndex.save();
 
   // Update HEAD
-  // await fs.writeFile(headPath, "ref: refs/heads/" + target);
+  await fs.writeFile(headPath, headValue);
 
   console.log(`HEAD is now at ${commitHash.slice(0, 7)} ${commit.message}`);
 }

@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import { ObjectStore } from "../core";
 import { Config } from "../core/config";
 import { getLocalCommit } from "../paths";
-import { getRepoName, collectObjects, parseGitUrl } from "../utils";
+import { collectObjects, parseGitUrl } from "../utils";
 
 const API_URL = process.env.API_URL;
 
@@ -23,9 +23,21 @@ export async function pushCommand(
 
   console.log(`Pushing ${branch} to ${remoteName} (${remoteUrl})`);
 
-  const objects = await collectObjects(objectStore, localCommit);
-  const email = allConfig.user?.email;
   const { username, repo } = parseGitUrl(remoteUrl as string);
+
+  let remoteHead: string | undefined;
+  const refResponse = await fetch(
+    `${API_URL}/${username}/${repo}/branches/${branch}`,
+  );
+  if (refResponse.ok) {
+    const refData = (await refResponse.json()) as {
+      data: { branch: { sha: string } };
+    };
+    remoteHead = refData.data.branch.sha;
+  }
+
+  const objects = await collectObjects(objectStore, localCommit, remoteHead);
+  const email = allConfig.user?.email;
 
   const payload = {
     branch,

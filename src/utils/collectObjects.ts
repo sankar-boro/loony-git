@@ -4,12 +4,14 @@ import { parseTree } from "./parseTree";
 export async function collectObjects(
   objectStore: ObjectStore,
   commitHash: Hash,
+  remoteHead?: Hash,
 ) {
   const visited = new Set<string>();
   const objects: Record<string, { type: string; content: any }> = {};
 
   async function walk(hash: string) {
     if (visited.has(hash)) return;
+    if (hash === remoteHead) return;
     visited.add(hash);
 
     const obj = await objectStore.readObject(hash);
